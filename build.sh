@@ -79,14 +79,24 @@ if [[ "$CONTAINERS_FOR" == "TESTING" ]]; then
 fi
 
 echo "Building base builder image - This may take a while"
-
+# In Unified we install Gluster 10.5 which has OpVersion=100000, Kadalu is a Gluster client and should use the same OpVersion
+# Kadalu release greater then 0.9.1 uses OpVersion=110000, so we have to use the Gluster client that comes with release 0.9.1
+# It seems that the Gluster client version used by Kadalu is deteterminated by the builder release, so we don't use the latest
+#if [ ${BUILD_BASE} == "yes" ]; then
+#  $RUNTIME_CMD $build \
+#        -t "${DOCKER_USER}/builder:latest" "${build_args[@]}" \
+#        --network host -f extras/Dockerfile.builder .
+#else
+  # pull the base image if we don't want to build it
+#  $RUNTIME_CMD pull "${DOCKER_USER}/builder:latest"
+#fi
 if [ ${BUILD_BASE} == "yes" ]; then
   $RUNTIME_CMD $build \
-        -t "${DOCKER_USER}/builder:latest" "${build_args[@]}" \
+        -t "${DOCKER_USER}/builder:0.9.1" "${build_args[@]}" \
         --network host -f extras/Dockerfile.builder .
 else
   # pull the base image if we don't want to build it
-  $RUNTIME_CMD pull "${DOCKER_USER}/builder:latest"
+  $RUNTIME_CMD pull "${DOCKER_USER}/builder:0.9.1"
 fi
 
 echo "Building kadalu-server with version tag as ${VERSION}";
