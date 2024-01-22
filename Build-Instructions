@@ -1,0 +1,7 @@
+To build the kadalu containers you can run inside the kadalu directory the command:
+
+make build-containers KADALU_VERSION=0.9.1 BUILD_BASE=no
+
+You need docker already installed, once the make command complete the docker images are available, you can view them by running command:
+
+docker image ls
