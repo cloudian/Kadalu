@@ -1,4 +1,8 @@
-ARG builder_version="latest"
+# ARG builder_version="latest"
+# In Unified we install Gluster 10.5 which has OpVersion=100000, Kadalu is a Gluster client and should use the same OpVersion
+# Kadalu release greater then 0.9.1 uses OpVersion=110000, so we have to use the Gluster client that comes with release 0.9.1
+# It seems that the Gluster client version used by Kadalu is deteterminated by the builder release, so we don't use the latest
+ARG builder_version="0.9.1"
 
 FROM kadalu/builder:${builder_version} as builder
 
