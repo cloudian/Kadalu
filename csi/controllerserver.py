@@ -646,15 +646,25 @@ class ControllerServer(csi_pb2_grpc.ControllerServicer):
         mntdir = os.path.join(HOSTVOL_MOUNTDIR, hostvol)
         use_gluster_quota = False
 
-        # Check free-size in storage-pool before expansion
-        if not is_hosting_volume_free(hostvol, additional_pvsize_required):
-
-            logging.info(logf(
-                "Hosting volume is full...Over-provisioning!",
-                volume=hostvol
-            ))
-
         hostvoltype = existing_volume.extra['hostvoltype']
+
+        # Check free-size in storage-pool before expansion
+        # For external gluster volume (the only one we currently use for HyperFile) we need the over-provisioning
+        if not is_hosting_volume_free(hostvol, additional_pvsize_required):
+            if hostvoltype != 'External':
+                logging.error(logf(
+                    "Hosting volume is full. Add more storage",
+                    volume=hostvol
+                    ))
+                errmsg = "Host volume resource is exhausted"
+                context.set_details(errmsg)
+                context.set_code(grpc.StatusCode.RESOURCE_EXHAUSTED)
+                return csi_pb2.CreateVolumeResponse()
+            else:
+                logging.info(logf(
+                    "Hosting volume is full...Over-provisioning!",
+                    volume=hostvol
+                    ))
 
         if pvtype == PV_TYPE_SUBVOL:
             update_subdir_volume(
